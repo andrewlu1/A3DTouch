@@ -1,17 +1,22 @@
 package com.uc.mobile.a3dtouch.widget;
 
+import android.R.integer;
 import android.content.Context;
+import android.graphics.Point;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.RelativeLayout;
 import android.widget.Scroller;
 
 public class VScrollLayout extends RelativeLayout {
 	private Scroller mScroller;
-	private GestureDetector mDetector;
-
+	private OnScrollListener mDetector;
+	private final int MIN_TOUCH_SLOP ;
 	public VScrollLayout(Context context) {
 		this(context, null, 0);
 	}
@@ -23,21 +28,8 @@ public class VScrollLayout extends RelativeLayout {
 	public VScrollLayout(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		mScroller = new Scroller(context);
-		mDetector = new GestureDetector(context,
-				new GestureDetector.SimpleOnGestureListener() {
-					@Override
-					public boolean onDown(MotionEvent e) {
-						return true;
-					}
-
-					@Override
-					public boolean onScroll(MotionEvent e1, MotionEvent e2,
-							float distanceX, float distanceY) {
-						// 限制边界.可以增加弹性回滚效果.即抬起手指时才判断是否超出边界.
-						smoothScrollBy(0, (int) distanceY);
-						return false;
-					}
-				});
+		mDetector = new OnScrollListener();
+		MIN_TOUCH_SLOP = ViewConfiguration.get(context).getScaledTouchSlop();
 	}
 
 	// 本控件有两种状态,要么停留顶部对齐,要么停留在底部对齐.
@@ -72,31 +64,23 @@ public class VScrollLayout extends RelativeLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if (event.getAction() == MotionEvent.ACTION_UP) {
-			int height = getChildHeight();
-			int scrollY = getScrollY();
-			int measureHeight = getHeight();
-			boolean isAtTopOrBottom = false;
-			// 滚动一半的位置.
-			int scroll_2 = (height - measureHeight) / 2;
-			if (scrollY < 0 || scrollY < scroll_2) {// 超出屏幕下方或者上方可滚动高度的1/2时,回原位.
-				smoothScrollTo(0, 0);
-				isAtTopOrBottom = true;
-			} else {
-				smoothScrollBy(0, height - scrollY - measureHeight);
-				isAtTopOrBottom = false;
-			}
-			if (mListener != null) {
-				mListener.onStateChanged(isAtTopOrBottom);
-			}
-			return false;
-		}
+		//Log.i("VScrollLayout", event.toString());
 		return mDetector.onTouchEvent(event);
 	}
-
+	private float mDownPointY = 0;
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		return true;
+		if(ev.getAction() == MotionEvent.ACTION_DOWN){
+			mDownPointY = ev.getY();
+		}
+		// 防止子控件接收滚动事件.不允许子控件滚动.但可以点击...
+		if (ev.getAction() == MotionEvent.ACTION_MOVE){
+			if(Math.abs(ev.getY() - mDownPointY) <MIN_TOUCH_SLOP){
+				return false;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private int getChildHeight() {
@@ -106,4 +90,79 @@ public class VScrollLayout extends RelativeLayout {
 		return child.getBottom();
 	}
 
+	private class OnScrollListener {
+		private final int POINT_INVALIDE = -1;
+		
+		private Point mDownPoint = new Point(0, 0);
+		private Point mLastPoint = new Point(0, 0);
+		private int mDownPointId = POINT_INVALIDE;
+
+		public boolean onTouchEvent(MotionEvent ev) {
+			boolean ret = true;
+			switch (ev.getAction()) {
+			case MotionEvent.ACTION_DOWN: {
+				mDownPointId = MotionEventCompat.getPointerId(ev, 0);
+				mDownPoint.x = (int) ev.getX();
+				mDownPoint.y = (int) ev.getY();
+				Log.e("VScrollLayout", "ACTION_DOWN");
+			}
+				break;
+			case MotionEvent.ACTION_MOVE: {
+				//当子控件拦截了Down事件后,本控件可能收不到Down事件,不能继续操作.直接返回.
+				if(POINT_INVALIDE == mDownPointId){
+					ret = false;
+					break;
+				}
+				
+				int index = MotionEventCompat
+						.findPointerIndex(ev, mDownPointId);
+				if (index < 0)
+					break;
+				
+				mLastPoint.x = (int) MotionEventCompat.getX(ev, index);
+				mLastPoint.y = (int) MotionEventCompat.getY(ev, index);
+				onActionScroll(-mLastPoint.x + mDownPoint.x, -mLastPoint.y
+						+ mDownPoint.y);
+
+				mDownPoint.set(mLastPoint.x, mLastPoint.y);
+
+				break;
+			}
+			case MotionEvent.ACTION_UP: {
+				ret = onActionUp(ev);
+				mDownPointId = POINT_INVALIDE;
+				Log.e("VScrollLayout","ACTION_UP");
+				break;
+			}
+			default:
+				break;
+			}
+			return ret;
+		}
+	}
+
+	private boolean onActionUp(MotionEvent e) {
+		int height = getChildHeight();
+		int scrollY = getScrollY();
+		int measureHeight = getHeight();
+		boolean isAtTopOrBottom = false;
+		// 滚动一半的位置.
+		int scroll_2 = (height - measureHeight) / 2;
+		if (scrollY < 0 || scrollY < scroll_2) {// 超出屏幕下方或者上方可滚动高度的1/2时,回原位.
+			smoothScrollTo(0, 0);
+			isAtTopOrBottom = true;
+		} else {
+			smoothScrollBy(0, height - scrollY - measureHeight);
+			isAtTopOrBottom = false;
+		}
+		if (mListener != null) {
+			mListener.onStateChanged(isAtTopOrBottom);
+		}
+		return true;
+	}
+
+	private boolean onActionScroll(int dx, int dy) {
+		smoothScrollBy(0, dy);
+		return false;
+	}
 }

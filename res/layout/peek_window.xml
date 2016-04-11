@@ -30,7 +30,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/arrowup" />
 
-            <com.uc.mobile.a3dtouch.widget.RoundView
+            <com.uc.mobile.a3dtouch.widget.NoTouchRoundView
                 android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                 app:radius="20dp"
                 app:strokeColor="#33888888"
                 app:strokeWidth="1dp" >
-            </com.uc.mobile.a3dtouch.widget.RoundView>
+            </com.uc.mobile.a3dtouch.widget.NoTouchRoundView>
         </LinearLayout>
 
         <LinearLayout
