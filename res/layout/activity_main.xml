@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.uc.mobile.a3dtouch.MainActivity" >
+
+    <Button
+        android:id="@+id/peekUrlBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_btn"
+        android:onClick="onClick"
+        android:text="预览网页内容" />
+
+    <Button
+        android:id="@+id/peekLittleImgBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_btn"
+        android:onClick="onClick"
+        android:text="预览小图片" />
+
+    <Button
+        android:id="@+id/peekBigImgBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_btn"
+        android:onClick="onClick"
+        android:text="预览大图片" />
+
+    <Button
+        android:id="@+id/peekNextPageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_btn"
+        android:onClick="onClick"
+        android:text="预览APP下一屏" />
+
+    <Button
+        android:id="@+id/nextPageBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/drawable_btn"
+        android:onClick="onClick"
+        android:text="跳转到下一界面" />
+
+</LinearLayout>
