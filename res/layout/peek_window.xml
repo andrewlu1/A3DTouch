@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/arrowup" />
+                android:src="@drawable/up_arrow" />
 
             <com.uc.mobile.a3dtouch.widget.NoTouchRoundView
                 android:id="@+id/container"
@@ -36,6 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
+                android:background="#fff"
                 app:radius="20dp"
                 app:strokeColor="#33888888"
                 app:strokeWidth="1dp" >

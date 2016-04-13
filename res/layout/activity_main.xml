@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/drawable_btn"
-        android:onClick="onClick"
         android:text="预览网页内容" />
 
     <Button
@@ -24,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/drawable_btn"
-        android:onClick="onClick"
         android:text="预览小图片" />
 
     <Button
@@ -33,7 +31,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/drawable_btn"
-        android:onClick="onClick"
         android:text="预览大图片" />
 
     <Button
@@ -42,7 +39,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/drawable_btn"
-        android:onClick="onClick"
         android:text="预览APP下一屏" />
 
     <Button
@@ -51,7 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@drawable/drawable_btn"
-        android:onClick="onClick"
         android:text="跳转到下一界面" />
 
 </LinearLayout>

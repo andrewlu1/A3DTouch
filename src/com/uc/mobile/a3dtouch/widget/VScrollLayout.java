@@ -16,7 +16,8 @@ import android.widget.Scroller;
 public class VScrollLayout extends RelativeLayout {
 	private Scroller mScroller;
 	private OnScrollListener mDetector;
-	private final int MIN_TOUCH_SLOP ;
+	private final int MIN_TOUCH_SLOP;
+
 	public VScrollLayout(Context context) {
 		this(context, null, 0);
 	}
@@ -64,18 +65,21 @@ public class VScrollLayout extends RelativeLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		//Log.i("VScrollLayout", event.toString());
 		return mDetector.onTouchEvent(event);
 	}
+
 	private float mDownPointY = 0;
+
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		if(ev.getAction() == MotionEvent.ACTION_DOWN){
+		Log.i("VScrollLayout", ev.toString());
+
+		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
 			mDownPointY = ev.getY();
 		}
 		// 防止子控件接收滚动事件.不允许子控件滚动.但可以点击...
-		if (ev.getAction() == MotionEvent.ACTION_MOVE){
-			if(Math.abs(ev.getY() - mDownPointY) <MIN_TOUCH_SLOP){
+		if (ev.getAction() == MotionEvent.ACTION_MOVE) {
+			if (Math.abs(ev.getY() - mDownPointY) < MIN_TOUCH_SLOP) {
 				return false;
 			}
 			return true;
@@ -92,12 +96,14 @@ public class VScrollLayout extends RelativeLayout {
 
 	private class OnScrollListener {
 		private final int POINT_INVALIDE = -1;
-		
+
 		private Point mDownPoint = new Point(0, 0);
 		private Point mLastPoint = new Point(0, 0);
 		private int mDownPointId = POINT_INVALIDE;
 
 		public boolean onTouchEvent(MotionEvent ev) {
+			Log.i("VScrollLayout-T", ev.toString());
+
 			boolean ret = true;
 			switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN: {
@@ -108,17 +114,17 @@ public class VScrollLayout extends RelativeLayout {
 			}
 				break;
 			case MotionEvent.ACTION_MOVE: {
-				//当子控件拦截了Down事件后,本控件可能收不到Down事件,不能继续操作.直接返回.
-				if(POINT_INVALIDE == mDownPointId){
+				// 当子控件拦截了Down事件后,本控件可能收不到Down事件,不能继续操作.直接返回.
+				if (POINT_INVALIDE == mDownPointId) {
 					ret = false;
 					break;
 				}
-				
+
 				int index = MotionEventCompat
 						.findPointerIndex(ev, mDownPointId);
 				if (index < 0)
 					break;
-				
+
 				mLastPoint.x = (int) MotionEventCompat.getX(ev, index);
 				mLastPoint.y = (int) MotionEventCompat.getY(ev, index);
 				onActionScroll(-mLastPoint.x + mDownPoint.x, -mLastPoint.y
@@ -131,7 +137,11 @@ public class VScrollLayout extends RelativeLayout {
 			case MotionEvent.ACTION_UP: {
 				ret = onActionUp(ev);
 				mDownPointId = POINT_INVALIDE;
-				Log.e("VScrollLayout","ACTION_UP");
+				Log.e("VScrollLayout", "ACTION_UP");
+				break;
+			}
+			case MotionEvent.ACTION_CANCEL: {
+				Log.e("VScrollLayout", "ACTION_CANCEL");
 				break;
 			}
 			default:

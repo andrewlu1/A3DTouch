@@ -25,6 +25,7 @@ public class Content implements Parcelable {
 	public final static int TYPE_CUSTOM = TYPE_UNKNOWN + 4;
 
 	public Content() {
+		type = TYPE_UNKNOWN;
 		params = new Bundle();
 		actionBtns = new Bundle();
 	}
