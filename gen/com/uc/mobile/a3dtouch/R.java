@@ -100,22 +100,23 @@ containing a value of this type.
         public static final int up_arrow=0x7f020005;
     }
     public static final class id {
-        public static final int action_settings=0x7f09000f;
-        public static final int addToFavor=0x7f09000e;
-        public static final int blurView=0x7f090008;
+        public static final int action_settings=0x7f090010;
+        public static final int addToFavor=0x7f09000f;
+        public static final int blurView=0x7f090009;
         public static final int circle=0x7f090000;
-        public static final int container=0x7f09000b;
-        public static final int contentLayout=0x7f090009;
-        public static final int menuLayout=0x7f09000c;
+        public static final int container=0x7f09000c;
+        public static final int contentLayout=0x7f09000a;
+        public static final int menuLayout=0x7f09000d;
         public static final int nextPageBtn=0x7f090007;
-        public static final int openInNewWindow=0x7f09000d;
+        public static final int openInNewWindow=0x7f09000e;
         public static final int oval=0x7f090001;
         public static final int peekBigImgBtn=0x7f090005;
         public static final int peekLittleImgBtn=0x7f090004;
         public static final int peekNextPageBtn=0x7f090006;
         public static final int peekUrlBtn=0x7f090003;
         public static final int rect=0x7f090002;
-        public static final int topLayout=0x7f09000a;
+        public static final int topLayout=0x7f09000b;
+        public static final int webView=0x7f090008;
     }
     public static final class layout {
         public static final int activity_detial_info=0x7f030000;

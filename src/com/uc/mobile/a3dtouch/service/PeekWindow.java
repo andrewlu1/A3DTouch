@@ -1,24 +1,10 @@
 package com.uc.mobile.a3dtouch.service;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import android.R.integer;
-import android.app.Instrumentation;
 import android.content.Context;
-import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -48,9 +34,6 @@ public class PeekWindow {
 	private VScrollLayout mContentLayout;
 	private ViewGroup mMenuLayout;
 	private Context mContext;
-	Instrumentation mInstrumentation = new Instrumentation();
-	private final static ExecutorService threadPool = Executors
-			.newSingleThreadExecutor();
 	private FrameLayout.LayoutParams mLayoutParams = new FrameLayout.LayoutParams(
 			android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
 			android.widget.FrameLayout.LayoutParams.MATCH_PARENT);
@@ -60,7 +43,7 @@ public class PeekWindow {
 		mContext = context.getApplicationContext();
 	}
 
-	public void reset() {
+	private void reset() {
 		mRootView = (ViewGroup) mInflater.inflate(R.layout.peek_window, null);
 		mContainerView = (FrameLayout) mRootView.findViewById(R.id.container);
 		mBlurringView = (BlurringView) mRootView.findViewById(R.id.blurView);
@@ -88,27 +71,9 @@ public class PeekWindow {
 				}
 			}
 		});
-
+		setupActions();
 	}
 
-	private void sendMotionDown() {
-		threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				mInstrumentation.sendPointerSync(MotionEvent.obtain(
-						SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-						MotionEvent.ACTION_DOWN, 800, 800, 0));
-
-			}
-		});
-	}
 
 	// backView为背景View. preView 为预览View. 每次show的时候都要new一个popupwindow 真烦人.
 	public void showAt(View backView, View preView) {
@@ -116,7 +81,6 @@ public class PeekWindow {
 		mPopupWindow.showAtLocation(backView, Gravity.CENTER, 0, 0);
 		mBlurringView.setBlurredView(backView);
 		mContainerView.addView(preView, mLayoutParams);
-		sendMotionDown();
 	}
 
 	public void close() {
@@ -133,33 +97,36 @@ public class PeekWindow {
 	}
 
 	private final int BTN_TAG = 0x7f090000;
-
+	private Action[] mActions;
 	public void setCustomActions(Action[] actions) {
-		mMenuLayout.removeAllViews();
+		this.mActions = actions;
 		int size = 5;
-		if (actions.length <= 5)
-			size = actions.length;
+		if (mActions.length <= size)
+			size = mActions.length;
 		else {
 			throw new RuntimeException("actions can be more than 5.");
 		}
-
+	}
+	private void setupActions(){
+		mMenuLayout.removeAllViews();
+		
+		if(mActions==null )return;
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
 				android.widget.LinearLayout.LayoutParams.WRAP_CONTENT);
 		params.topMargin = params.bottomMargin = 10;
 
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < mActions.length; i++) {
 			Button btnButton = new Button(mContext);
 			btnButton.setBackgroundResource(R.drawable.drawable_btn);
-			String key = actions[i].title;
+			String key = mActions[i].title;
 			btnButton.setText(key);
-			btnButton.setTag(BTN_TAG, actions[i]);
+			btnButton.setTag(BTN_TAG, mActions[i]);
 			btnButton.setOnClickListener(onClickListener);
 
 			mMenuLayout.addView(btnButton, params);
 		}
 	}
-
 	public boolean isShowing() {
 		return mPopupWindow != null && mPopupWindow.isShowing();
 	}

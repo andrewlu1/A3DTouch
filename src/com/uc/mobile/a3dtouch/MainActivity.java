@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -17,20 +15,23 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		findViewById(R.id.peekUrlBtn).setOnLongClickListener(onLongClickListener);
-		findViewById(R.id.peekLittleImgBtn).setOnLongClickListener(onLongClickListener);
+		findViewById(R.id.peekUrlBtn).setOnLongClickListener(
+				onLongClickListener);
+		findViewById(R.id.peekLittleImgBtn).setOnLongClickListener(
+				onLongClickListener);
 
-		findViewById(R.id.peekBigImgBtn).setOnLongClickListener(onLongClickListener);
+		findViewById(R.id.peekBigImgBtn).setOnLongClickListener(
+				onLongClickListener);
 
-		findViewById(R.id.peekNextPageBtn).setOnLongClickListener(onLongClickListener);
-
+		findViewById(R.id.peekNextPageBtn).setOnLongClickListener(
+				onLongClickListener);
 	}
 
 	public final View.OnLongClickListener onLongClickListener = new View.OnLongClickListener() {
-		
+
 		@Override
 		public boolean onLongClick(View v) {
-			
+			v.cancelLongPress();
 			onClick(v);
 			return true;
 		}

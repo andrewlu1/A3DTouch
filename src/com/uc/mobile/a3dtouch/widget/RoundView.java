@@ -16,7 +16,8 @@ import android.util.Log;
 import android.widget.FrameLayout;
 
 /**
- * Created by Administrator on 2016/4/6. CardView 在低版本上内容与边框之间会有空隙.并非真正的圆角布局.
+ * Created by Administrator on 2016/4/6. 
+ * CardView 在低版本上内容与边框之间会有空隙.并非真正的圆角布局.
  * RoundView用来构造一个真正的圆角布局.可选形状有: 圆角矩形, 圆,椭圆.矩形.矩形实际上是弧度为0的圆角矩形.
  */
 public class RoundView extends FrameLayout {
@@ -77,7 +78,7 @@ public class RoundView extends FrameLayout {
 		return mStrokeColor;
 	}
 
-	public void draw(Canvas canvas) {
+	public final void draw(Canvas canvas) {
 		beforeDraw(canvas);
 		super.draw(canvas);
 	}

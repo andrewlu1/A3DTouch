@@ -9,6 +9,9 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -24,7 +27,7 @@ public class PreviewManager {
 	private final static String TAG = "PreviewManager";
 
 	private static PreviewManager instance;
-	private static ImageLoader imageLoader = ImageLoader.getInstance();
+	private final static ImageLoader imageLoader = ImageLoader.getInstance();
 
 	private PeekWindow mPeekWindow;
 
@@ -42,13 +45,14 @@ public class PreviewManager {
 		}
 		mActivityManager = new LocalActivityManager(context, true);
 		mActivityManager.dispatchCreate(new Bundle());
-		imageLoader.init(new ImageLoaderConfiguration.Builder(context).build());
+		if (!imageLoader.isInited()) {
+			imageLoader.init(new ImageLoaderConfiguration.Builder(context).build());
+		}
 	}
 
 	public static PreviewManager getInstance() {
 		if (instance == null)
-			throw new RuntimeException(
-					"PreviewManager must call register first!");
+			throw new RuntimeException("PreviewManager must call register first!");
 
 		return instance;
 	}
@@ -86,11 +90,11 @@ public class PreviewManager {
 	}
 
 	public synchronized void peek(Content content) {
-			peek(content, null);
+		peek(content, null);
 	}
 
 	public synchronized void peek(Content content, ActionFactory factory) {
-		
+
 		_peekContent(content);
 		if (factory != null) {
 			Action[] actions = factory.produceActionsFor(content);
@@ -106,7 +110,7 @@ public class PreviewManager {
 
 	// 预览网页.
 	public void peek(String url, ActionFactory factory) {
-		
+
 		Content content = new Content();
 		content.type = Content.TYPE_URL;
 		content.url = url;
@@ -117,13 +121,13 @@ public class PreviewManager {
 	}
 
 	public synchronized void peek(Bitmap bmp) {
-		
+
 		peek(bmp, (ActionFactory) null);
 	}
 
 	// 预览小图.
 	public synchronized void peek(Bitmap bmp, ActionFactory factory) {
-		
+
 		Content content = new Content();
 		content.type = Content.TYPE_IMG;
 		content.bmp = bmp;
@@ -134,13 +138,13 @@ public class PreviewManager {
 	}
 
 	public synchronized void peek(Bitmap bmp, String url) {
-		
+
 		peek(bmp, url, null);
 	}
 
 	// 预览中有大图带网址.
 	public synchronized void peek(Bitmap bmp, String url, ActionFactory factory) {
-		
+
 		Content content = new Content();
 		content.type = Content.TYPE_BIG_IMG;
 		content.bmp = bmp;
@@ -153,27 +157,24 @@ public class PreviewManager {
 	}
 
 	public synchronized void peek(Class<? extends Activity> nextPageActivity) {
-		
+
 		peek(nextPageActivity, null, null);
 	}
 
 	// 预览下一屏内容.
-	public void peek(Class<? extends Activity> nextPageActivity,
-			ActionFactory factory) {
-		
+	public void peek(Class<? extends Activity> nextPageActivity, ActionFactory factory) {
+
 		peek(nextPageActivity, null, factory);
 	}
 
-	public synchronized void peek(Class<? extends Activity> nextPageActivity,
-			Bundle params) {
-		
+	public synchronized void peek(Class<? extends Activity> nextPageActivity, Bundle params) {
+
 		peek(nextPageActivity, null, null);
 	}
 
 	// 预览下一屏内容.带参数.
-	public synchronized void peek(Class<? extends Activity> nextPageActivity,
-			Bundle params, ActionFactory factory) {
-		
+	public synchronized void peek(Class<? extends Activity> nextPageActivity, Bundle params, ActionFactory factory) {
+
 		Content content = new Content();
 		content.type = Content.TYPE_CUSTOM;
 		content.customActivity = nextPageActivity;
@@ -185,16 +186,34 @@ public class PreviewManager {
 		peek(content, factory);
 	}
 
-	private synchronized void _peekContent(Content c) {
-		if (isPeeking.compareAndSet(false, true)) {
-			View view = mContext.getWindow().getDecorView();
-			View preView = _getPrevView(c);
-			mPeekWindow.showAt(view, preView);
-			
+	private Content mCurrentContent;
+
+	// 重按时候打开内容.
+	public synchronized void open() {
+		if (mCurrentContent != null) {
+			// 打开内容.
 		}
 	}
 
-	private synchronized View _getPrevView(Content c) {
+	private void _peekContent(final Content c) {
+		if (isPeeking.compareAndSet(false, true)) {
+			mCurrentContent = c;
+			Message msg = Message.obtain(mHandler, 0, c);
+			msg.sendToTarget();
+		}
+	}
+
+	private boolean isPopWindowShow = false;
+	private final Handler mHandler = new Handler(Looper.getMainLooper()) {
+		public void dispatchMessage(Message msg) {
+			View view = mContext.getWindow().getDecorView();
+			View preView = _getPrevView((Content) msg.obj);
+			mPeekWindow.showAt(view, preView);
+			isPopWindowShow = true;
+		};
+	};
+
+	private View _getPrevView(Content c) {
 		if (c == null)
 			return null;
 		View view = null;
@@ -234,8 +253,7 @@ public class PreviewManager {
 			if (c.params != null) {
 				intent.putExtras(c.params);
 			}
-			View customView = mActivityManager.startActivity(
-					c.customActivity.getSimpleName(), intent).getDecorView();
+			View customView = mActivityManager.startActivity(c.customActivity.getSimpleName(), intent).getDecorView();
 			view = customView;
 			break;
 		}
@@ -245,8 +263,15 @@ public class PreviewManager {
 		return view;
 	}
 
+	public boolean isPopWindowShow() {
+		return isPopWindowShow;
+	}
+
 	// 如果 消息处理了,就返回true;
 	public synchronized boolean cancel() {
+		isPopWindowShow = false;
+		isPeeking.compareAndSet(true, false);
+		mCurrentContent = null;
 		if (mPeekWindow.isShowing()) {
 			mPeekWindow.close();
 			return true;
@@ -260,11 +285,14 @@ public class PreviewManager {
 	private void cleanCache() {
 		WebView webView = (WebView) CACHEMAP_MAP.get(Content.TYPE_URL);
 		if (webView != null)
-			webView.loadUrl("about:blank");
+			webView.loadData("", "text/html", "utf-8");
+
 		ImageView img = (ImageView) CACHEMAP_MAP.get(Content.TYPE_IMG);
 		if (img != null) {
 			img.setImageBitmap(null);
 		}
+		isPeeking.compareAndSet(true, false);
+		mCurrentContent = null;
 	}
 
 	private OnDismissListener onDismissListener = new OnDismissListener() {

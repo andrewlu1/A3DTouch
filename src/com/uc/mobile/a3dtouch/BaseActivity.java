@@ -8,10 +8,15 @@ import android.support.v4.app.FragmentActivity;
 public abstract class BaseActivity extends FragmentActivity {
 	protected void onCreate(Bundle b) {
 		super.onCreate(b);
+		getWindow().getDecorView().post(mRunnable);
 	}
 
+	@Override
 	protected void onStart() {
 		super.onStart();
+	}
+
+	protected void onInit() {
 		PreviewManager.register(this);
 	}
 
@@ -25,4 +30,12 @@ public abstract class BaseActivity extends FragmentActivity {
 			super.onBackPressed();
 		}
 	}
+
+	private final Runnable mRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+			onInit();
+		}
+	};
 }

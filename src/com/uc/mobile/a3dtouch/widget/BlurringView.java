@@ -58,7 +58,7 @@ public class BlurringView extends View {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected final void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if (mBlurredViewRef == null)
 			return;
@@ -144,9 +144,9 @@ public class BlurringView extends View {
 
 		final int radius = (int) (weight * 25);
 		// final int factor = (int) (weight * 5 / 100 + 1);
-		// final int color = Color.argb((int) (0.1f * 100f), 50, 50, 50);
+		final int color = Color.argb((int) (weight * 100f), 50, 50, 50);
 		setDownsampleFactor(4);
-		// setOverlayColor(color);
+		setOverlayColor(color);
 		setBlurRadius(radius);
 		postInvalidate();
 	}

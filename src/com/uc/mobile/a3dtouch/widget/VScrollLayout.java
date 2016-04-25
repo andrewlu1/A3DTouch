@@ -1,10 +1,8 @@
 package com.uc.mobile.a3dtouch.widget;
 
-import android.R.integer;
 import android.content.Context;
 import android.graphics.Point;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -72,7 +70,7 @@ public class VScrollLayout extends RelativeLayout {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		Log.i("VScrollLayout", ev.toString());
+		//Log.i("VScrollLayout", ev.toString());
 
 		if (ev.getAction() == MotionEvent.ACTION_DOWN) {
 			mDownPointY = ev.getY();
@@ -102,7 +100,7 @@ public class VScrollLayout extends RelativeLayout {
 		private int mDownPointId = POINT_INVALIDE;
 
 		public boolean onTouchEvent(MotionEvent ev) {
-			Log.i("VScrollLayout-T", ev.toString());
+			//Log.i("VScrollLayout-T", ev.toString());
 
 			boolean ret = true;
 			switch (ev.getAction()) {
